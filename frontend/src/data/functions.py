@@ -3,13 +3,18 @@ import psycopg2
 import datetime
 
 def insert_data():
-    print("Welcome to Time Managament Tool!")
 
+    #Asks user to input start and end dates and times and validates them.
+    
     while True:
         start_date = str(input("Enter start day (format: DD.MM.YYYY): "))
         try:
             if datetime.datetime.strptime(start_date, '%d.%m.%Y'):
-                break
+                if datetime.datetime.strptime(start_date, '%d.%m.%Y') < datetime.datetime.now():
+                    break
+                else:
+                    print("Start date can't be in the future!")
+                    
         except ValueError:
             print("Invalid date format, try again!")
             continue
@@ -17,7 +22,7 @@ def insert_data():
     while True:
         start_time = str(input("Enter start time (format: HH.MM): "))
         try:
-            if datetime.datetime.strptime(start_time, '%M.%S'):
+            if datetime.datetime.strptime(start_time, '%H.%M'):
                 break
         except ValueError:
             print("Invalid time format, try again!")
@@ -39,12 +44,14 @@ def insert_data():
     while True:
         end_time = str(input("Enter end time (format: HH.MM): "))
         try:
-            if datetime.datetime.strptime(end_time, '%M.%S'):
+            if datetime.datetime.strptime(end_time, '%H.%M'):
                 if datetime.datetime.strptime(start_date, '%d.%m.%Y') == datetime.datetime.strptime(end_date, '%d.%m.%Y'):
-                    if datetime.datetime.strptime(start_time, '%M.%S') < datetime.datetime.strptime(end_time, '%M.%S'):
+                    if datetime.datetime.strptime(start_time, '%H.%M') < datetime.datetime.strptime(end_time, '%H.%M'):
                         break
                     else:
                         print("End time can't be earlier or same as start time, try again!")
+                else:
+                    break
         except ValueError:
             print("Invalid time format, try again!")
             continue
@@ -62,28 +69,34 @@ def insert_data():
             print("Project description can't be empty, try again!")
             continue
         break
+    
+    # Combine date and time and convert it to a datetime. Also validates they are legit.
+    try:
+        start_datetime = datetime.datetime.strptime(start_date + "." + start_time, '%d.%m.%Y.%H.%M')
+    except ValueError:
+        print("Something went wrong when creating start_datetime.")
+    try:
+        end_datetime = datetime.datetime.strptime(end_date + "." + end_time, '%d.%m.%Y.%H.%M')
+    except ValueError:
+        print("Something went wrong when creating end_datetime.")
 
-
-
-    # date = "08.11.2022"
-    # y = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # date2 = datetime.strptime(date, "%d.%m.%Y")
-    # print(date2)
+    # Return values
+    return (start_datetime, end_datetime, project_name, project_desc)
 
 def push_data_to_database(start_time, end_time, project, project_desc):
     con = None
     try:
         con = psycopg2.connect(**config())
         cursor = con.cursor()
-        SQL = """
-        INSERT INTO timetable (start_time, end_time, project, project_desc)
-        VALUES (%s, %s, %s, %s);
-        UPDATE 'timetable SET work_hours = %s -%s;
-        """
-        cursor.execute(SQL, (start_time, end_time, project, project_desc, end_time, start_time))
+        SQL = "INSERT INTO timetable (start_time, end_time, project, project_desc) VALUES (%s, %s, %s, %s) RETURNING id;"
+        cursor.execute(SQL, (start_time, end_time, project, project_desc))
+        id = cursor.fetchone()
+
+        SQL2 = "UPDATE timetable SET work_hours = end_time - start_time WHERE id = %s;"
+        cursor.execute(SQL2, (id,))
         con.commit()
         cursor.close()
-        print("done")
+        print("Information uploaded to database")
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
