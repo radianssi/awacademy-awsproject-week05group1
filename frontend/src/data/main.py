@@ -6,14 +6,14 @@ def main():
 
     while True:
         run_functions = input("Do you wanto to add worked hours?(Y/N): ")
-        if run_functions == "y" or "Y":
+        if run_functions.lower() == "y":
             data = insert_data()    
-            push_data_to_database(data[0], data[1])
-        elif run_functions == "n" or "N":
+            push_data_to_database(data[0], data[1], data[2], data[3])
+        elif run_functions.lower() == "n":
             print("Thank you for using Time Managament app!")
             break
         else:
-            run_functions = input("Please select correct option: ")
+            print("Please select correct option")
 
 if __name__ == "__main__":
     main()
