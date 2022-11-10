@@ -3,7 +3,7 @@ This is a "simple" tool to record your work tasks to PostgreSQL database in AWS 
 
 # Architecture
 
-![Architecture](https://imgur.com/a/ZcFV77Y)
+![Architecture](https://i.imgur.com/Hjbybrg.png)
 
 ## How to use
 * 1 Create virtual enviroment (Python 3.11 doesn't work atm) and install dependencies
@@ -36,4 +36,4 @@ password= #your password
 py main.py
 ```
 
-* 7 (Optional) Get automatic reports via email. You need to setup your email to AWS SES. 
+* 7 (Optional) Get automatic reports via email. You need to setup your email to AWS SES. Next set up AWS Lambda with psycopg2.zip and add .py + .py files to Lambda. Setup AWS EventBridge to schedule Lambda to run for example once per day.
