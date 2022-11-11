@@ -31,6 +31,7 @@ venv/
 
 # database.ini
 frontend/src/data/database.ini
+backend/database.ini
 
 # Python cache
 *__pycache__
