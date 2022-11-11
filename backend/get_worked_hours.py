@@ -20,8 +20,9 @@ def get_db():
         cursor.execute(SQL2)
         response = cursor.fetchall()
         data2 = json.dumps(response, default = str)
-        return [data, data2]
         cursor.close()
+        return [data, data2]
+        
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
