@@ -12,7 +12,7 @@ py -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
 ```
-* 2 Creat your own VPC and networking infra to AWS with backend/cloudformation.yaml. You need to install AWS CLI before this. Run command in backend folder:
+* 2 Create your own VPC and networking infra to AWS with backend/cloudformation.yaml. You need to install AWS CLI before this. Run command in backend folder:
 ```bash
 aws cloudformation deploy --template-file ./cloudformation.yaml --stack-name timemanagament-vpcstack
 ```
@@ -36,4 +36,4 @@ password= #your password
 py main.py
 ```
 
-* 7 (Optional) Get automatic reports via email. You need to setup your email to AWS SES. Next set up AWS Lambda with psycopg2.zip and add .py + .py files to Lambda. Setup AWS EventBridge to schedule Lambda to run for example once per day.
+* 7 (Optional) Get automatic reports via email. You need to setup your email to AWS SES. Next set up AWS Lambda with psycopg2.zip (pack psycopg2 folder files) and upload get_worked_hours.py + send_mail.py files to Lambda. You also have to upload database.ini with same information as in phase 5. Setup AWS EventBridge to schedule Lambda to run for example once per day.
