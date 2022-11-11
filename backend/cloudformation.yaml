@@ -1,0 +1,139 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates VPC (RDS and all the necessary components as comments)
+
+# Parameters:
+#   DBInstanceID:
+#     Default: Group2DbInstance
+#     Description: Group 2 database instance
+#     Type: String
+#     MinLength: '1'
+#     MaxLength: '63'
+
+#   DBName:
+#     Default: mydb
+#     Description: Group 2 database
+#     Type: String
+#     MinLength: '1'
+#     MaxLength: '64'
+
+#   DBUser:
+#     Default: group2dbuser
+#     NoEcho: 'true'
+#     Description: Username for database access
+#     Type: String
+#     MinLength: '1'
+#     MaxLength: '16'
+
+#   DBPass:
+#     Default: group2dbpass
+#     NoEcho: 'true'
+#     Description: Password database access
+#     Type: String
+#     MinLength: '8'
+#     MaxLength: '41'
+
+Resources: 
+  VPC: 
+    Type: AWS::EC2::VPC 
+    Properties: 
+      CidrBlock: 10.0.0.0/16
+
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: eu-central-1a
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref VPC
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  PublicRouteTable:
+    DependsOn: AttachGateway
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+  PublicDefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref PublicRouteTable
+  PublicRouteAssociationA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnetA
+
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: eu-central-1b
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref VPC
+
+  PublicRouteTable2:
+    DependsOn: AttachGateway
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+  SubnetBRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref PublicRouteTable2
+  PublicRouteAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable2
+      SubnetId: !Ref PublicSubnetB
+    
+  # rdsDBSubnetGroup:
+  #   Type: AWS::RDS::DBSubnetGroup
+  #   Properties: 
+  #     DBSubnetGroupDescription: Subnet for RDS
+  #     SubnetIds: 
+  #       - !Ref PublicSubnetA 
+  #       - !Ref PublicSubnetB
+
+  # rdsSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: allow RDS connections
+  #     SecurityGroupIngress: 
+  #       - IpProtocol: tcp
+  #         FromPort: 80
+  #         ToPort: 80
+  #     VpcId: !Ref VPC
+
+  # rdsDbInstance:
+  #   Type: AWS::RDS::DBInstance
+  #   Properties:
+  #     DBName: !Ref DBName
+  #     MasterUsername: !Ref DBUser
+  #     MasterUserPassword: !Ref DBPass
+  #     Engine: PostgreSQL
+  #     DBInstanceClass: db.t2.micro
+  #     StorageType: gp2
+  #     PubliclyAccessible: True
+  #     AllocatedStorage: "20"
+  #     DBInstanceIdentifier: !Ref DBInstanceID
+  #     DBSecurityGroups: 
+  #       - !GetAtt rdsSecurityGroup.GroupId
+  #     DBSubnetGroupName: !Ref rdsDBSubnetGroup
+        
+    
+
+
+
+
+
+      
